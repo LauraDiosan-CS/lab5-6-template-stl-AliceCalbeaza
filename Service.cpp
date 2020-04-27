@@ -1,192 +1,63 @@
 #include "Service.h"
-#include <algorithm> 
-
-Service::Service()
+#include <iostream>
+#include "Booking.h"
+#include <limits>
+void Service::addBooking(std::string name, int flightId, int seatNumber)
 {
+    char tmp;
+    Booking booking(flightId, seatNumber, name);
+    repo.addItem(booking);
 }
 
-Service::Service(const Repo<Rezervare>& r)
+void Service::setRepo(Repo<Booking> repo)
 {
-	repo = r;
+    this->repo = repo;
 }
 
-void Service::setRepo(const Repo<Rezervare>& r)
+std::list<Booking> Service::getAll()
 {
-	repo = r;
+    return this->repo.getAll();
 }
-
-
-
-void Service::addRezervare(Rezervare& r)
+Booking& Service::search( std::string name )
 {
-	repo.addElem(r);
+    std::list<Booking> bookings = this->repo.getAll();
+    std::string tmpName;
+    Booking b;
+    for (Booking & booking : bookings) {
+        tmpName = booking.getPassangerName();
+        if ( name == tmpName ) {
+            return booking;
+        }
+    }
+    return b;
 }
-
-void Service::delRezervare(Rezervare& r)
+bool Service::bookingExists( std::string name )
 {
-	repo.del(r);
+    bool exists = false;
+    std::list<Booking> bookings = this->repo.getAll();
+    std::string tmpName;
+    for (Booking & booking : bookings) {
+        tmpName = booking.getPassangerName();
+        if ( name == tmpName ) {
+            exists = true;
+            break;
+        }
+    }
+    return exists;
 }
-
-list<Rezervare> Service::getAll()
+int Service::getNoOfBookings()
 {
-	return repo.GetAll();
+    return this->repo.getSize();
 }
 
-vector<Rezervare> Service::getAll2()
-{
-	list<Rezervare> rez = repo.GetAll();
-	vector<Rezervare> v(rez.begin(), rez.end());
-	return v;
-}
-
-Rezervare Service::update(Rezervare r, Rezervare r1)
-{
-	repo.updateElem(r, r1);
-	return r;
-}
-
-
-__int64_t Service::findOne(Rezervare r)
-{
-	return repo.findElem(r);
-}
-
-__int64_t Service::getSize()
-{
-	return this->repo.getSize();
-}
-
-list<Rezervare>Service::filtreazaDupaNumeSiNr1(const char* n, int a) {
-
-	list<Rezervare> rez;
-    for (__int64_t i = 0;i < repo.getSize();i++)
-	{
-		Rezervare crt = repo.get(i) ;
-		if (strstr(crt.getNume(), n) && crt.getNrZbor() >= a) {
-			rez.push_back(crt);
-		}
-	}
-	return rez;
-}
-
-
-	
-bool myNrZborCompare(Rezervare x, Rezervare y){
-if (x.getNrZbor() == y.getNrZbor()) {
-	return x < y;
-}
-	return x.getNrZbor() < y.getNrZbor();
-
-}
-
-
-list<Rezervare> Service::sortByNrZbor()
+void Service::update(Booking oldBooking, Booking newBooking)
 {
 
-	list<Rezervare> all = repo.GetAll();
-	all.sort(myNrZborCompare);
-	return all;
+    this->repo.update(oldBooking, newBooking);
 }
 
-bool myNrLocCompare(Rezervare x, Rezervare y) {
-	if (x.getNrLoc() == y.getNrLoc()) {
-		return x > y;
-	}
-	return x.getNrZbor() > y.getNrZbor();
-
-}
-
-list<Rezervare> Service::sortByNrLoc()
+void Service::del(std::string name)
 {
-	list<Rezervare> all = repo.GetAll();
-	all.sort(myNrLocCompare);
-	return all;
-}
-
-vector<Rezervare> Service::sorteazaDupaLoc()
-{
-	list<Rezervare> all = repo.GetAll();
-	all.sort(myNrLocCompare);
-	vector<Rezervare> rez(all.begin(), all.end());
-	return rez;
-}
-
-bool myNameCompareCresc(Rezervare x, Rezervare y) {
-
-	
-	if (strcmp(x.getNume(),y.getNume()) == 0) {
-		return x < y;
-	}
-	return strcmp(x.getNume(), y.getNume()) < 0;
-
-}
-
-list<Rezervare> Service::sortByNameCresc()
-{
-	list<Rezervare> all = repo.GetAll();
-	all.sort(myNameCompareCresc);
-	return all;
-}
-bool myNameCompareDescresc(Rezervare x, Rezervare y) {
-
-
-	if (strcmp(x.getNume(), y.getNume()) == 0) {
-		return x > y;
-	}
-	return strcmp(x.getNume(), y.getNume()) > 0;
-
-}
-
-
-list<Rezervare> Service::sortByNameDescrs()
-{
-	list<Rezervare> all = repo.GetAll();
-	all.sort(myNameCompareDescresc);
-	return all;
-}
-
-list<Rezervare> Service::Avanseaza(const char* name)
-{
-	list<Rezervare> RezervareFilter;
-	int first = 0;
-    for (__int64_t i = 0; i < repo.getSize(); i++) {
-		Rezervare& re = repo.get(i);
-		
-		if (strcmp(re.getNume(), name) == 0) {
-			first++; 
-			re.setNrZbor(first);
-			RezervareFilter.push_back(re);
-			
-		}
-		
-	}
-
-	return RezervareFilter;
-
-}
-
-list<Rezervare> Service::NrZborEgalCuPozLista(const char* name)
-{
-	list<Rezervare> RezervareFilter;
-	int first = 0;
-    for (__int64_t i = 0; i < repo.getSize(); i++) {
-		Rezervare& re = repo.get(i);
-		first++;
-		if (strcmp(re.getNume(), name) == 0) {
-			re.setNrZbor(first);
-			RezervareFilter.push_back(re);
-
-		}
-
-	}
-
-	return RezervareFilter;
-}
-
-
-
-
-
-Service::~Service()
-{
+    Booking booking = this->search(name);
+    this->repo.del(booking);
 }
