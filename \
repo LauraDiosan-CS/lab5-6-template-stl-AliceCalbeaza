@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "Booking.h"
-#include <string.h>
+#include <string>
 Booking::Booking(unsigned int id, unsigned int seatNumber, std::string passanger_name) {
     this->flightId = id;
     this->seatNumber = seatNumber;
@@ -33,11 +33,8 @@ Booking::Booking()
 {
 
 }
-bool Booking:: operator==(const Booking & e)
-{
-    return this->passanger_name== e.passanger_name
-        && this->flightId == e.flightId
-        && this->seatNumber == e.seatNumber;
+bool Booking::: operator==(const Rezervare& e) {
+	return strcmp(this->nume, e.nume) == 0 && this->nr_zbor == e.nr_zbor && this->nr_loc == e.nr_loc;
 }
 std::ostream& operator<<(std::ostream& os, Booking flight) {
 	os << "Numarul zborului:" << flight.getFlightId() << std::endl;
